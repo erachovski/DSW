@@ -13,6 +13,53 @@
                 @Html.AntiForgeryToken()
                 <h4>Use a local account to log in.</h4>
                 <hr />
+                <h4><b>Default test accounts:</b></h4>
+                <table>
+                    <tr>
+                        <td>
+                            <table border=1>
+                                <tr><td><b>Superuser</b></td></tr>
+                                <tr><td><b>Role:</b> @DefaultSettingsAndData.ROLE_ADMIN</td></tr>
+                                <tr><td><b>E-mail:</b> @DefaultSettingsAndData.USER_ADMIN_EMAIL</td></tr>
+                                <tr><td><b>Password:</b> @DefaultSettingsAndData.USER_ADMIN_PASS</td></tr>
+                            </table>
+                        </td>
+                        <td>
+                            <table border=1>
+                                <tr><td><b>Standard user</b></td></tr>
+                                <tr><td><b>Role:</b> @DefaultSettingsAndData.ROLE_USER</td></tr>
+                                <tr><td><b>E-mail:</b> @DefaultSettingsAndData.USER_TEST_EMAIL</td></tr>
+                                <tr><td><b>Password:</b> @DefaultSettingsAndData.USER_TEST_PASS</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <hr />
+                <table>
+                    <tr>
+                        <td>
+                            <h4><b>Username rules:</b></h4>
+                            <table border=1>
+                                <tr><td>Should be valid e-mail address.</td></tr>
+                                <tr><td>.</td></tr>
+                                <tr><td>UserLockoutEnabledByDefault</td><td>@DefaultSettingsAndData.USER_LOCKOUT_ENABLED_BY_DEFAULT</td></tr>
+                                <tr><td>DefaultAccountLockoutTimeSpan</td><td>@DefaultSettingsAndData.DEFAULT_ACCOUNT_LOCKOUT_TIMESPAN</td></tr>
+                                <tr><td>MaxFailedAccessAttemptsBeforeLockout</td><td>@DefaultSettingsAndData.MAX_FAILED_ACCESS_ATTEMPTS_BEFORE_LOCKOUT</td></tr>
+                            </table>
+                        </td>
+                        <td>
+                            <h4><b>Password rules:</b></h4>
+                            <table border=1>
+                                <tr><td>RequiredLength</td><td>@DefaultSettingsAndData.PASS_REQUIRED_LENGTH</td></tr>
+                                <tr><td>RequireNonLetterOrDigit</td><td>@DefaultSettingsAndData.PASS_REQUIRE_NONLETTERORDIGIT</td></tr>
+                                <tr><td>RequireDigit</td><td>@DefaultSettingsAndData.PASS_REQUIRE_DIGIT</td></tr>
+                                <tr><td>RequireLowercase</td><td>@DefaultSettingsAndData.PASS_REQUIRE_LOWERCASE</td></tr>
+                                <tr><td>RequireUppercase</td><td>@DefaultSettingsAndData.PASS_REQUIRE_UPPERCASE</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <hr />
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
                     @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
@@ -44,16 +91,10 @@
                 <p>
                     @Html.ActionLink("Register as a new user", "Register")
                 </p>
-                @* Enable this once you have account confirmation enabled for password reset functionality
-                    <p>
-                        @Html.ActionLink("Forgot your password?", "ForgotPassword")
-                    </p>*@
+                <p>
+                    @Html.ActionLink("Forgot your password?", "ForgotPassword")
+                </p>
             }
-        </section>
-    </div>
-    <div class="col-md-4">
-        <section id="socialLoginForm">
-            @Html.Partial("_ExternalLoginsListPartial", new ExternalLoginListViewModel { ReturnUrl = ViewBag.ReturnUrl })
         </section>
     </div>
 </div>

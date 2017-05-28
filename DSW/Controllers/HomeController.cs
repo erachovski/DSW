@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using DSW.Models;
+using System.Configuration;
 using System.Web.Mvc;
 
 namespace DSW.Controllers
@@ -13,17 +11,24 @@ namespace DSW.Controllers
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult TestProject()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            return View();
+        }
 
+        [HttpPost]
+        public ActionResult Contact(ContactModel details)
+        {
+            if (ModelState.IsValid)
+            {
+                var contactUsEmail = ConfigurationManager.AppSettings["ContactUsEmail"];
+                Utils.EmailService.SendMail(details.Email, contactUsEmail, details.Subject, details.Message);
+            }
             return View();
         }
     }

@@ -1,34 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
+﻿using DSW.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
-using DSW.Models;
+using System;
+using System.Configuration;
+using System.Data.Entity;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace DSW
 {
-    public class EmailService : IIdentityMessageService
+    public static class DefaultSettingsAndData
     {
-        public Task SendAsync(IdentityMessage message)
-        {
-            // Plug in your email service here to send an email.
-            return Task.FromResult(0);
-        }
+        public const string PROJECT_NAME = "Data science wrapper";
+
+        public const string ROLE_ADMIN = "Admin";
+        public const string ROLE_USER = "User";
+        public const string USER_ADMIN_PASS = "Admin123";
+        public const string USER_ADMIN_EMAIL = "admin@dsw.proj";
+        public const string USER_TEST_PASS = "Test123";
+        public const string USER_TEST_EMAIL = "test@dsw.proj";
+
+        public const int PASS_REQUIRED_LENGTH = 6;
+        public const bool PASS_REQUIRE_NONLETTERORDIGIT = false;
+        public const bool PASS_REQUIRE_DIGIT = true;
+        public const bool PASS_REQUIRE_LOWERCASE = true;
+        public const bool PASS_REQUIRE_UPPERCASE = true;
+
+        public const bool USER_LOCKOUT_ENABLED_BY_DEFAULT = true;
+        public const int DEFAULT_ACCOUNT_LOCKOUT_TIMESPAN = 5;
+        public const int MAX_FAILED_ACCESS_ATTEMPTS_BEFORE_LOCKOUT = 3;
     }
 
-    public class SmsService : IIdentityMessageService
+    public class EmailService : IIdentityMessageService
     {
-        public Task SendAsync(IdentityMessage message)
+        public async Task SendAsync(IdentityMessage message)
         {
-            // Plug in your SMS service here to send a text message.
-            return Task.FromResult(0);
+            var from = ConfigurationManager.AppSettings["SystemEmailSender"];
+            await Utils.EmailService.SendMailAsync(from, message.Destination, message.Subject, message.Body);
         }
     }
 
@@ -40,50 +51,38 @@ namespace DSW
         {
         }
 
-        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context) 
+        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)
         {
             var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
-            // Configure validation logic for usernames
+            
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
             {
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
-
-            // Configure validation logic for passwords
+            
             manager.PasswordValidator = new PasswordValidator
             {
-                RequiredLength = 6,
-                RequireNonLetterOrDigit = true,
-                RequireDigit = true,
-                RequireLowercase = true,
-                RequireUppercase = true,
+                RequiredLength = DefaultSettingsAndData.PASS_REQUIRED_LENGTH,
+                RequireNonLetterOrDigit = DefaultSettingsAndData.PASS_REQUIRE_NONLETTERORDIGIT,
+                RequireDigit = DefaultSettingsAndData.PASS_REQUIRE_DIGIT,
+                RequireLowercase = DefaultSettingsAndData.PASS_REQUIRE_LOWERCASE,
+                RequireUppercase = DefaultSettingsAndData.PASS_REQUIRE_UPPERCASE
             };
+            
+            manager.UserLockoutEnabledByDefault = DefaultSettingsAndData.USER_LOCKOUT_ENABLED_BY_DEFAULT;
+            manager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(DefaultSettingsAndData.DEFAULT_ACCOUNT_LOCKOUT_TIMESPAN);
+            manager.MaxFailedAccessAttemptsBeforeLockout = DefaultSettingsAndData.MAX_FAILED_ACCESS_ATTEMPTS_BEFORE_LOCKOUT;
 
-            // Configure user lockout defaults
-            manager.UserLockoutEnabledByDefault = true;
-            manager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
-            manager.MaxFailedAccessAttemptsBeforeLockout = 5;
-
-            // Register two factor authentication providers. This application uses Phone and Emails as a step of receiving a code for verifying the user
-            // You can write your own provider and plug it in here.
-            manager.RegisterTwoFactorProvider("Phone Code", new PhoneNumberTokenProvider<ApplicationUser>
-            {
-                MessageFormat = "Your security code is {0}"
-            });
-            manager.RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<ApplicationUser>
-            {
-                Subject = "Security Code",
-                BodyFormat = "Your security code is {0}"
-            });
             manager.EmailService = new EmailService();
-            manager.SmsService = new SmsService();
+
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)
             {
-                manager.UserTokenProvider = 
+                manager.UserTokenProvider =
                     new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
+
             return manager;
         }
     }
@@ -104,6 +103,54 @@ namespace DSW
         public static ApplicationSignInManager Create(IdentityFactoryOptions<ApplicationSignInManager> options, IOwinContext context)
         {
             return new ApplicationSignInManager(context.GetUserManager<ApplicationUserManager>(), context.Authentication);
+        }
+    }
+
+    public class ApplicationDbInitializer : DropCreateDatabaseIfModelChanges<ApplicationDbContext>
+    {
+        protected override void Seed(ApplicationDbContext context)
+        {
+            CreateDefaultEntitiesEF(context);
+            base.Seed(context);
+        }
+
+        private void CreateDefaultEntitiesEF(ApplicationDbContext context)
+        {
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
+
+            if (!roleManager.RoleExists(DefaultSettingsAndData.ROLE_ADMIN))
+            {
+                roleManager.Create(new IdentityRole(DefaultSettingsAndData.ROLE_ADMIN));
+
+                var adminUser = ApplicationUser.Create(DefaultSettingsAndData.USER_ADMIN_EMAIL);
+                var adminResult = userManager.Create(adminUser, DefaultSettingsAndData.USER_ADMIN_PASS);
+                if (adminResult.Succeeded)
+                {
+                    userManager.AddToRole(adminUser.Id, DefaultSettingsAndData.ROLE_ADMIN);
+                }
+                else
+                {
+                    throw new Exception(string.Join("; ", adminResult.Errors));
+                }
+            }
+
+            if (!roleManager.RoleExists(DefaultSettingsAndData.ROLE_USER))
+            {
+                roleManager.Create(new IdentityRole(DefaultSettingsAndData.ROLE_USER));
+
+                var testUser = ApplicationUser.CreateWithBillingAccount(DefaultSettingsAndData.USER_TEST_EMAIL);
+                var userResult = userManager.Create(testUser, DefaultSettingsAndData.USER_TEST_PASS);
+                if (userResult.Succeeded)
+                {
+                    userManager.AddToRole(testUser.Id, DefaultSettingsAndData.ROLE_USER);
+                }
+                else
+                {
+                    throw new Exception(string.Join("; ", userResult.Errors));
+                }
+            }
+
         }
     }
 }

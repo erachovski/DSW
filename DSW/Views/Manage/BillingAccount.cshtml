@@ -1,0 +1,33 @@
+﻿@model DSW.Models.BillingAccountModel
+@using Microsoft.Owin.Security
+@{
+    ViewBag.Title = "Manage your subscription";
+}
+
+<h2>@ViewBag.Title.</h2>
+
+<p class="text-success">@ViewBag.StatusMessage</p>
+@{
+
+    var billingAccountBalance = (Model.Account == null) || string.IsNullOrWhiteSpace(Model.Account.Balance)
+        ? "NA"
+        : Model.Account.Balance;
+
+    if (billingAccountBalance == "NA")
+    {
+        <div>
+            <p>
+                NA
+            </p>
+        </div>
+    }
+    else
+    {
+        <table border=1>
+            <tr><td><b>Details:</b> @Model.Account.Info</td></tr>
+            <tr><td><b>Balance:</b> @Model.Account.Balance</td></tr>
+            <tr><td><b>Begin date:</b> @Model.Account.StartDate</td></tr>
+            <tr><td><b>End date:</b> @Model.Account.EndDate</td></tr>
+        </table>
+    }
+}

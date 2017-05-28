@@ -1,17 +1,63 @@
-﻿@{
+﻿@model DSW.Models.ContactModel
+@{
     ViewBag.Title = "Contact";
 }
+<h2>About.</h2>
+<h3>Data science wrapper</h3>
+<h4>Background</h4>
+<p>
+    We have an application build on R, using Shinny Framework for FE. It was developed by data science team that has beginners understanding of Web Development, Databases, running applications as service, etc.
+    The app is currently running on privet servers located a German datacentre and has no user management and no authentication.
+</p>
+<h4>Business Case</h4>
+<p>
+    Wrap this application with a .NET application that will cater for the authentication of users, their management, while keeping datasets per user among the different projects they can run through the R tool.
+</p>
+
+<hr />
 <h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
-
 <address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
+    <strong>Address:</strong><br />
+    DSW team<br />
+    Varna, 9000<br />
+</address>
+<address>
+    <strong>Support:</strong>   <a href="mailto:support@dsw.proj">support@dsw.proj</a><br />
+    <strong>Marketing:</strong> <a href="mailto:marketing@dsw.proj">marketing@dsw.proj</a>
+</address>
+<address>
+    <strong>Phone(support):</strong>+359 52 123 456<br />
+    <strong>Phone(markeing):</strong>+359 52 123 456<br />
+    <strong>Fax:</strong>+359 52 789 789<br />
+    <strong>Skype:</strong>dsw
 </address>
 
-<address>
-    <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-</address>
+<h4><b>Contact us</b></h4>
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+    <div class="row">
+        @Html.LabelFor(model => model.Name, "Name:")
+        @Html.EditorFor(model => model.Name)
+        @Html.ValidationMessageFor(model => model.Name)
+    </div>
+    <div class="row">
+        @Html.LabelFor(model => model.Email, "Email:")
+        @Html.EditorFor(model => model.Email)
+        @Html.ValidationMessageFor(model => model.Email)
+    </div>
+    <div class="row">
+        @Html.LabelFor(model => model.Subject, "Subject:")
+        @Html.EditorFor(model => model.Subject)
+        @Html.ValidationMessageFor(model => model.Subject)
+    </div>
+    <div class="row">
+        @Html.LabelFor(model => model.Message, "Message:")
+        @Html.TextAreaFor(model => model.Message)
+        @Html.ValidationMessageFor(model => model.Message)
+    </div>
+    <div class="row">
+        <input type="submit" value="submit" />
+        <input type="reset" value="reset" />
+    </div>
+}
