@@ -33,31 +33,33 @@
 </address>
 
 <h4><b>Contact us</b></h4>
-@using (Html.BeginForm())
+@using (Html.BeginForm("Contact", "Home", FormMethod.Post, new { style = "display: grid;" }))
 {
-    @Html.ValidationSummary(true)
-    <div class="row">
-        @Html.LabelFor(model => model.Name, "Name:")
-        @Html.EditorFor(model => model.Name)
-        @Html.ValidationMessageFor(model => model.Name)
-    </div>
-    <div class="row">
-        @Html.LabelFor(model => model.Email, "Email:")
-        @Html.EditorFor(model => model.Email)
-        @Html.ValidationMessageFor(model => model.Email)
-    </div>
-    <div class="row">
-        @Html.LabelFor(model => model.Subject, "Subject:")
-        @Html.EditorFor(model => model.Subject)
-        @Html.ValidationMessageFor(model => model.Subject)
-    </div>
-    <div class="row">
-        @Html.LabelFor(model => model.Message, "Message:")
-        @Html.TextAreaFor(model => model.Message)
-        @Html.ValidationMessageFor(model => model.Message)
-    </div>
-    <div class="row">
-        <input type="submit" value="submit" />
-        <input type="reset" value="reset" />
+    <div class="col-md-8">
+        @Html.ValidationSummary(true)
+        <div class="row">
+            @Html.LabelFor(model => model.Name, "Name:")
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Name)
+        </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Email, "Email:")
+            @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Email)
+        </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Subject, "Subject:")
+            @Html.TextBoxFor(model => model.Subject, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Subject)
+        </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Message, "Message:")
+            @Html.TextAreaFor(model => model.Message, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Message)
+        </div>
+        <div class="row">
+            <input type="submit" value="submit" class="btn btn-default" />
+            <input type="reset" value="reset" class="btn btn-default" />
+        </div>
     </div>
 }
